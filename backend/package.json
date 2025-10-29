@@ -1,0 +1,39 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "CareerPath360.AI Backend API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "career",
+    "resume",
+    "ai",
+    "analysis"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.x.x",
+    "axios": "^1.x.x",
+    "bcryptjs": "^2.x.x",
+    "cors": "^2.x.x",
+    "dotenv": "^16.x.x",
+    "express": "^4.x.x",
+    "express-validator": "^7.x.x",
+    "form-data": "^4.0.4",
+    "joi": "^17.x.x",
+    "jsonwebtoken": "^9.x.x",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.x.x",
+    "multer": "^1.x.x",
+    "multer-s3": "^3.x.x",
+    "pdfkit": "^0.17.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.x.x"
+  }
+}
