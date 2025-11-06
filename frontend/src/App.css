@@ -1,0 +1,18 @@
+/* App.css - Optional custom styles beyond Tailwind */
+
+/* You can add any app-specific custom CSS here if needed */
+/* Currently using Tailwind CSS exclusively, so this file can remain empty */
+
+/* Example: Custom animations not in Tailwind */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

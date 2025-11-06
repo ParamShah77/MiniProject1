@@ -3,38 +3,44 @@ const mongoose = require('mongoose');
 const courseSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: [true, 'Please add a course title'],
     trim: true
   },
   platform: {
     type: String,
-    required: true,
-    enum: ['Coursera', 'Udemy', 'edX', 'Pluralsight', 'LinkedIn Learning', 'Udacity', 'Other']
+    required: [true, 'Please add a platform'],
+    enum: {
+      values: ['Udemy', 'Coursera', 'edX', 'YouTube', 'Microsoft Learn', 'Other'],  // UPDATED - Added YouTube, Microsoft Learn, Other
+      message: '{VALUE} is not a valid platform'
+    }
   },
   instructor: {
     type: String,
-    trim: true
+    required: [true, 'Please add an instructor name']
   },
   url: {
     type: String,
-    required: true
+    required: [true, 'Please add a course URL']
   },
-  description: String,
+  description: {
+    type: String,
+    required: [true, 'Please add a description']
+  },
   relatedSkills: {
     type: [String],
-    required: true,
-    validate: {
-      validator: function(skills) {
-        return skills.length > 0;
-      },
-      message: 'At least one related skill is required'
-    }
+    required: true
   },
-  duration: String, // e.g., "4 weeks", "20 hours"
+  duration: {
+    type: String,
+    required: true
+  },
   difficulty: {
     type: String,
-    enum: ['Beginner', 'Intermediate', 'Advanced'],
-    required: true
+    required: true,
+    enum: {
+      values: ['Beginner', 'Intermediate', 'Advanced'],
+      message: '{VALUE} is not a valid difficulty level'
+    }
   },
   rating: {
     type: Number,
@@ -75,18 +81,10 @@ const courseSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
   }
-}, {
-  timestamps: true
 });
 
-// Index for search
-courseSchema.index({ title: 'text', description: 'text' });
-courseSchema.index({ relatedSkills: 1 });
-courseSchema.index({ platform: 1, difficulty: 1 });
+// Index for searching
+courseSchema.index({ title: 'text', description: 'text', relatedSkills: 'text' });
 
 module.exports = mongoose.model('Course', courseSchema);

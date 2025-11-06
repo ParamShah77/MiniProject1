@@ -1,0 +1,56 @@
+@media print {
+  /* Hide everything except the resume */
+  body * {
+    visibility: hidden;
+  }
+
+  #resume-preview,
+  #resume-preview * {
+    visibility: visible;
+  }
+
+  #resume-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Remove shadows and borders for clean print */
+  .shadow-lg,
+  .shadow-md,
+  .shadow-sm {
+    box-shadow: none !important;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+
+  /* Letter size (8.5" x 11") */
+  @page {
+    size: letter;
+    margin: 0;
+  }
+
+  /* Ensure proper sizing */
+  #resume-preview {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Remove background colors for print */
+  .bg-gray-50,
+  .bg-gray-100,
+  .bg-blue-50 {
+    background-color: white !important;
+  }
+
+  /* Ensure black text for print */
+  body {
+    color: black !important;
+  }
+}

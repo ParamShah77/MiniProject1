@@ -4,8 +4,7 @@ const analysisSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    index: true
+    required: true
   },
   resumeId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,48 +22,39 @@ const analysisSchema = new mongoose.Schema({
     min: 0,
     max: 100
   },
-  matchingSkills: [String],
-  missingSkills: [String],
+  matchingSkills: {
+    type: [String],
+    default: []
+  },
+  missingSkills: {
+    type: [String],
+    default: []
+  },
   recommendations: [{
-    skill: String,
-    priority: {
-      type: String,
-      enum: ['High', 'Medium', 'Low']
-    },
-    estimatedTime: String, // e.g., "20-30 hours"
-    difficulty: {
-      type: String,
-      enum: ['Beginner', 'Intermediate', 'Advanced']
-    }
+    title: String,
+    description: String
+  }],
+  recommendedCourses: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course'
   }],
   feedback: {
+    overallAssessment: String,
     strengths: [String],
     improvements: [String],
-    overallAssessment: String
+    atsScore: {
+      type: Number,
+      default: 0
+    },
+    scoreBreakdown: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
+    }
   },
-  learningRoadmap: [{
-    step: Number,
-    skill: String,
-    duration: String,
-    resources: [String],
-    milestones: [String]
-  }],
-  status: {
-    type: String,
-    enum: ['pending', 'processing', 'completed', 'failed'],
-    default: 'pending'
-  },
-  error: String,
   createdAt: {
     type: Date,
     default: Date.now
   }
-}, {
-  timestamps: true
 });
-
-// Index for faster queries
-analysisSchema.index({ userId: 1, createdAt: -1 });
-analysisSchema.index({ resumeId: 1 });
 
 module.exports = mongoose.model('Analysis', analysisSchema);

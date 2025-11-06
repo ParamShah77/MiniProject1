@@ -1,65 +1,21 @@
 const Analysis = require('../models/Analysis');
 const Resume = require('../models/Resume');
 const JobRole = require('../models/JobRole');
+const Course = require('../models/Course');
 
-// Simple skill matching algorithm
-const analyzeSkillMatch = (resumeSkills, requiredSkills, preferredSkills) => {
-  const normalizeSkill = (skill) => skill.toLowerCase().trim();
-  
-  const resumeSkillsNormalized = resumeSkills.map(normalizeSkill);
-  const requiredSkillsNormalized = requiredSkills.map(normalizeSkill);
-  const preferredSkillsNormalized = preferredSkills.map(normalizeSkill);
-  
-  // Find matching skills
-  const matchingRequired = requiredSkillsNormalized.filter(skill =>
-    resumeSkillsNormalized.includes(skill)
-  );
-  
-  const matchingPreferred = preferredSkillsNormalized.filter(skill =>
-    resumeSkillsNormalized.includes(skill)
-  );
-  
-  // Find missing skills
-  const missingRequired = requiredSkillsNormalized.filter(skill =>
-    !resumeSkillsNormalized.includes(skill)
-  );
-  
-  // Calculate match percentage
-  const requiredWeight = 0.7;
-  const preferredWeight = 0.3;
-  
-  const requiredMatch = (matchingRequired.length / requiredSkillsNormalized.length) * 100;
-  const preferredMatch = preferredSkillsNormalized.length > 0
-    ? (matchingPreferred.length / preferredSkillsNormalized.length) * 100
-    : 0;
-  
-  const matchPercentage = Math.round(
-    (requiredMatch * requiredWeight) + (preferredMatch * preferredWeight)
-  );
-  
-  return {
-    matchPercentage,
-    matchingSkills: [...matchingRequired, ...matchingPreferred],
-    missingSkills: missingRequired
-  };
-};
-
-// @desc    Create new analysis
-// @route   POST /api/analysis
-// @access  Private
 exports.createAnalysis = async (req, res) => {
   try {
     const { resumeId, targetJobRoleId } = req.body;
 
-    // Validate input
+    console.log('📊 Creating analysis:', { resumeId, targetJobRoleId });
+
     if (!resumeId || !targetJobRoleId) {
       return res.status(400).json({
         status: 'error',
-        message: 'Please provide resumeId and targetJobRoleId'
+        message: 'Resume ID and target job role ID are required'
       });
     }
 
-    // Fetch resume
     const resume = await Resume.findOne({
       _id: resumeId,
       userId: req.user.id
@@ -72,9 +28,7 @@ exports.createAnalysis = async (req, res) => {
       });
     }
 
-    // Fetch job role
     const jobRole = await JobRole.findById(targetJobRoleId);
-
     if (!jobRole) {
       return res.status(404).json({
         status: 'error',
@@ -82,81 +36,171 @@ exports.createAnalysis = async (req, res) => {
       });
     }
 
-    // Extract skills from resume (mock for now)
-    const resumeSkills = resume.parsedData?.skills || [];
-    
-    // If no parsed skills, use mock data
-    const mockSkills = ['JavaScript', 'React', 'Node.js', 'HTML', 'CSS', 'Git'];
-    const skillsToAnalyze = resumeSkills.length > 0 ? resumeSkills : mockSkills;
+    console.log('✅ Found resume and job role');
 
-    // Analyze skill match
-    const { matchPercentage, matchingSkills, missingSkills } = analyzeSkillMatch(
-      skillsToAnalyze,
-      jobRole.requiredSkills,
-      jobRole.preferredSkills
+    // FIX: Use extracted_skills (from ML service)
+    const resumeSkills = resume.parsedData?.extracted_skills || [];
+    const requiredSkills = jobRole.requiredSkills || [];
+    const preferredSkills = jobRole.preferredSkills || [];
+
+    console.log('📋 Skills:', {
+      resume: resumeSkills.length,
+      resumeSkillsList: resumeSkills,
+      required: requiredSkills.length,
+      preferred: preferredSkills.length
+    });
+
+    const allJobSkills = [...new Set([...requiredSkills, ...preferredSkills])];
+    const resumeSkillsLower = resumeSkills.map(s => s.toLowerCase());
+    
+    const matchingSkills = allJobSkills.filter(skill =>
+      resumeSkillsLower.includes(skill.toLowerCase())
+    );
+    
+    const missingSkills = allJobSkills.filter(skill =>
+      !resumeSkillsLower.includes(skill.toLowerCase())
     );
 
-    // Generate recommendations
-    const recommendations = missingSkills.slice(0, 5).map(skill => ({
-      skill,
-      priority: missingSkills.indexOf(skill) < 3 ? 'High' : 'Medium',
-      estimatedTime: '20-30 hours',
-      difficulty: 'Intermediate'
-    }));
+    const requiredMatches = requiredSkills.filter(skill =>
+      resumeSkillsLower.includes(skill.toLowerCase())
+    ).length;
+    
+    const preferredMatches = preferredSkills.filter(skill =>
+      resumeSkillsLower.includes(skill.toLowerCase())
+    ).length;
 
-    // Generate feedback
-    const feedback = {
-      strengths: matchingSkills.slice(0, 5),
-      improvements: missingSkills.slice(0, 5),
-      overallAssessment: matchPercentage >= 75
-        ? 'Excellent match! Your skills align well with this role.'
-        : matchPercentage >= 50
-        ? 'Good match with room for improvement in key areas.'
-        : 'Focus on developing missing skills to improve your match.'
-    };
+    const matchPercentage = requiredSkills.length > 0 
+      ? Math.round(
+          (requiredMatches / requiredSkills.length) * 70 +
+          (preferredMatches / (preferredSkills.length || 1)) * 30
+        )
+      : 0;
 
-    // Create analysis
+    console.log('📊 Match calculation:', {
+      matchPercentage,
+      matchingSkills: matchingSkills.length,
+      missingSkills: missingSkills.length
+    });
+
+    const recommendations = [];
+    
+    if (missingSkills.length > 0) {
+      recommendations.push({
+        title: 'Develop Missing Skills',
+        description: `Focus on learning: ${missingSkills.slice(0, 5).join(', ')}${missingSkills.length > 5 ? ` and ${missingSkills.length - 5} more` : ''}`
+      });
+    }
+
+    if (matchPercentage < 70) {
+      recommendations.push({
+        title: 'Enhance Your Profile',
+        description: 'Add more relevant projects and experience showcasing these skills'
+      });
+    }
+
+    if (resumeSkills.length < 10) {
+      recommendations.push({
+        title: 'Expand Skill Set',
+        description: 'Add more technical skills to your resume for better ATS scores'
+      });
+    }
+
+    let recommendedCourses = [];
+    if (missingSkills.length > 0) {
+      recommendedCourses = await Course.find({
+        relatedSkills: { $in: missingSkills.map(s => new RegExp(s, 'i')) },
+        isActive: true
+      })
+      .sort({ rating: -1 })
+      .limit(6)
+      .select('title platform instructor url duration difficulty rating price relatedSkills');
+    }
+
+    console.log('📚 Found', recommendedCourses.length, 'recommended courses');
+
+    const overallFeedback = matchPercentage >= 70
+      ? 'Strong match! Your skills align well with the requirements for this role.'
+      : matchPercentage >= 50
+      ? 'Good match with room for improvement in key areas.'
+      : 'Consider developing the missing skills to strengthen your candidacy for this role.';
+
+    const strengths = matchingSkills.length > 0 ? matchingSkills.slice(0, 5) : ['No matching skills found'];
+    const improvements = missingSkills.length > 0 ? missingSkills.slice(0, 5) : [];
+
+    // FIX: Read final_ats_score correctly
+    const atsScore = resume.parsedData?.final_ats_score || resume.parsedData?.ats_score || 0;
+    const scoreBreakdown = resume.parsedData?.score_breakdown || {};
+
+    console.log('🎯 ATS Data from resume:', {
+      atsScore,
+      hasBreakdown: Object.keys(scoreBreakdown).length > 0,
+      parsedDataKeys: Object.keys(resume.parsedData || {})
+    });
+
     const analysis = await Analysis.create({
       userId: req.user.id,
-      resumeId,
-      targetJobRoleId,
-      matchPercentage,
-      matchingSkills,
-      missingSkills,
-      recommendations,
-      feedback,
-      status: 'completed'
+      resumeId: resumeId,
+      targetJobRoleId: targetJobRoleId,
+      matchPercentage: matchPercentage,
+      matchingSkills: matchingSkills,
+      missingSkills: missingSkills,
+      recommendations: recommendations,
+      recommendedCourses: recommendedCourses.map(c => c._id),
+      feedback: {
+        overallAssessment: overallFeedback,
+        strengths: strengths,
+        improvements: improvements,
+        atsScore: atsScore,
+        scoreBreakdown: scoreBreakdown
+      }
     });
+
+    await analysis.populate('targetJobRoleId');
+    await analysis.populate('recommendedCourses');
+
+    console.log('✅ Analysis created:', analysis._id);
+    console.log('✅ Final ATS Score saved:', analysis.feedback.atsScore);
 
     res.status(201).json({
       status: 'success',
-      message: 'Analysis created successfully',
-      data: { analysis }
+      message: 'Analysis completed successfully',
+      data: {
+        analysis: {
+          id: analysis._id,
+          matchPercentage: analysis.matchPercentage,
+          matchingSkills: analysis.matchingSkills,
+          missingSkills: analysis.missingSkills,
+          recommendations: analysis.recommendations,
+          recommendedCourses: analysis.recommendedCourses,
+          targetJobRole: analysis.targetJobRoleId,
+          feedback: analysis.feedback,
+          createdAt: analysis.createdAt
+        }
+      }
     });
+
   } catch (error) {
-    console.error('Create analysis error:', error);
+    console.error('❌ Analysis error:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Error creating analysis'
+      message: 'Error creating analysis',
+      error: error.message
     });
   }
 };
 
-// @desc    Get all user's analyses
-// @route   GET /api/analysis
-// @access  Private
 exports.getAllAnalyses = async (req, res) => {
   try {
     const analyses = await Analysis.find({ userId: req.user.id })
-      .populate('resumeId', 'fileName originalName uploadedAt')
-      .populate('targetJobRoleId', 'title category experienceLevel')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate('targetJobRoleId', 'title category')
+      .populate('resumeId', 'originalName uploadedAt');
 
     res.status(200).json({
       status: 'success',
       data: {
         count: analyses.length,
-        analyses
+        analyses: analyses
       }
     });
   } catch (error) {
@@ -168,17 +212,15 @@ exports.getAllAnalyses = async (req, res) => {
   }
 };
 
-// @desc    Get analysis by ID
-// @route   GET /api/analysis/:id
-// @access  Private
 exports.getAnalysisById = async (req, res) => {
   try {
     const analysis = await Analysis.findOne({
       _id: req.params.id,
       userId: req.user.id
     })
-      .populate('resumeId')
-      .populate('targetJobRoleId');
+    .populate('targetJobRoleId')
+    .populate('resumeId')
+    .populate('recommendedCourses');
 
     if (!analysis) {
       return res.status(404).json({
@@ -200,12 +242,9 @@ exports.getAnalysisById = async (req, res) => {
   }
 };
 
-// @desc    Delete analysis
-// @route   DELETE /api/analysis/:id
-// @access  Private
 exports.deleteAnalysis = async (req, res) => {
   try {
-    const analysis = await Analysis.findOneAndDelete({
+    const analysis = await Analysis.findOne({
       _id: req.params.id,
       userId: req.user.id
     });
@@ -216,6 +255,8 @@ exports.deleteAnalysis = async (req, res) => {
         message: 'Analysis not found'
       });
     }
+
+    await Analysis.deleteOne({ _id: req.params.id });
 
     res.status(200).json({
       status: 'success',

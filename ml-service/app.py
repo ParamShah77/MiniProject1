@@ -22,12 +22,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Simple skill database
+# Comprehensive skill database
 SKILLS = [
     'Python', 'Java', 'JavaScript', 'TypeScript', 'C++', 'C#', 'Go', 'Rust',
     'HTML', 'CSS', 'React', 'Angular', 'Vue', 'Node.js', 'Express',
-    'Django', 'Flask', 'FastAPI', 'Spring', 'MongoDB', 'PostgreSQL',
-    'MySQL', 'Redis', 'AWS', 'Azure', 'Docker', 'Kubernetes', 'Git'
+    'Django', 'Flask', 'FastAPI', 'Spring', 'Spring Boot',
+    'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'SQL',
+    'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'Git',
+    'REST API', 'GraphQL', 'Microservices', 'CI/CD',
+    'Machine Learning', 'TensorFlow', 'PyTorch', 'Pandas', 'NumPy',
+    'React Native', 'Flutter', 'Swift', 'Kotlin', 'Android', 'iOS'
 ]
 
 def parse_pdf(file_path: str) -> str:
@@ -44,19 +48,124 @@ def parse_docx(file_path: str) -> str:
 
 def extract_skills(text: str) -> list:
     text_lower = text.lower()
-    return [skill for skill in SKILLS if skill.lower() in text_lower]
+    found_skills = []
+    for skill in SKILLS:
+        if skill.lower() in text_lower:
+            found_skills.append(skill)
+    return found_skills
 
-def calculate_ats_score(text: str, skills: list) -> float:
+def calculate_ats_score(text: str, skills: list) -> dict:
+    """Realistic ATS scoring (harder to get 100)"""
+    import re
+    
     word_count = len(text.split())
     skill_count = len(skills)
     
-    # Simple scoring
-    score = 0
-    score += min(word_count / 500 * 30, 30)  # 30% for content
-    score += min(skill_count / 10 * 50, 50)  # 50% for skills
-    score += 20  # 20% base score
+    scores = {'contact_info': 0, 'skills': 0, 'content': 0}
     
-    return round(score, 2)
+    # ------------------------------
+    # 1️⃣ Contact Information (20 pts)
+    # ------------------------------
+    has_email = bool(re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text))
+    has_phone = bool(re.search(r'[\+\(]?[1-9][0-9 .\-\(\)]{8,}[0-9]', text))
+    has_address = bool(re.search(r'\b(city|state|country|road|street|lane|zip|pincode)\b', text.lower()))
+    
+    base_contact = (has_email * 8) + (has_phone * 8) + (has_address * 4)
+    
+    # Partial penalty for missing items
+    if not has_email or not has_phone:
+        base_contact *= 0.8
+    scores['contact_info'] = base_contact
+
+    # ------------------------------
+    # 2️⃣ Skills Matching (50 pts)
+    # ------------------------------
+    # Harder tiers + diminishing returns
+    if skill_count >= 18:
+        skill_score = 46
+    elif skill_count >= 14:
+        skill_score = 42
+    elif skill_count >= 10:
+        skill_score = 35
+    elif skill_count >= 7:
+        skill_score = 25
+    elif skill_count >= 5:
+        skill_score = 18
+    else:
+        skill_score = 10
+    
+    # Penalty for generic skills (e.g., 'communication', 'teamwork')
+    generic_skills = ['communication', 'leadership', 'teamwork', 'creative']
+    generic_penalty = sum(1 for s in skills if any(g in s.lower() for g in generic_skills))
+    skill_score -= generic_penalty * 2  # small penalty per generic skill
+    scores['skills'] = max(skill_score, 0)
+
+    # ------------------------------
+    # 3️⃣ Content Quality (30 pts)
+    # ------------------------------
+    action_verbs = [
+        'developed', 'managed', 'led', 'created', 'implemented',
+        'designed', 'built', 'improved', 'optimized', 'analyzed'
+    ]
+    action_count = sum(1 for verb in action_verbs if verb in text.lower())
+
+    # Word count scoring (tighter)
+    if word_count >= 600:
+        content_score = 16
+    elif word_count >= 400:
+        content_score = 12
+    elif word_count >= 250:
+        content_score = 8
+    else:
+        content_score = 4
+
+    # Action verb bonus (reduced)
+    if action_count >= 6:
+        content_score += 8
+    elif action_count >= 3:
+        content_score += 5
+    elif action_count >= 1:
+        content_score += 2
+
+    # Add penalty for missing structure
+    sections = ['education', 'experience', 'projects', 'skills', 'certifications']
+    section_hits = sum(1 for s in sections if s in text.lower())
+    if section_hits < 3:
+        content_score -= 4  # penalize weak structure
+
+    scores['content'] = max(min(content_score, 30), 0)
+
+    # ------------------------------
+    # 4️⃣ Final Computation
+    # ------------------------------
+    total_score = sum(scores.values())
+    normalized_score = min(round((total_score / 100) * 90, 2), 90.0)
+    
+    breakdown = {
+        'contact_information': {
+            'score': round((scores['contact_info'] / 20) * 100, 2),
+            'status': 'complete' if scores['contact_info'] >= 16 else 'incomplete',
+            'has_email': has_email,
+            'has_phone': has_phone,
+            'has_address': has_address
+        },
+        'skills': {
+            'score': round((scores['skills'] / 50) * 100, 2),
+            'total_skills': skill_count,
+            'generic_penalty': generic_penalty
+        },
+        'content_quality': {
+            'score': round((scores['content'] / 30) * 100, 2),
+            'word_count': word_count,
+            'action_verbs': action_count,
+            'section_coverage': section_hits
+        }
+    }
+    
+    return {
+        'final_score': normalized_score,
+        'breakdown': breakdown
+    }
 
 @app.get("/")
 async def root():
@@ -97,31 +206,22 @@ async def parse_resume(file: UploadFile = File(...)):
             # Extract skills
             skills = extract_skills(text)
             
-            # Calculate score
-            ats_score = calculate_ats_score(text, skills)
+            # Calculate ATS score
+            ats_result = calculate_ats_score(text, skills)
             
-            logger.info(f"✅ Parsed resume: {len(text)} chars, {len(skills)} skills, {ats_score}% score")
+            logger.info(f"✅ Parsed resume: {len(text)} chars, {len(skills)} skills, {ats_result['final_score']}% ATS score")
             
             return {
                 "success": True,
                 "data": {
-                    "final_ats_score": ats_score,
-                    "ml_relevance_score": ats_score,
+                    "final_ats_score": ats_result['final_score'],
+                    "ats_score": ats_result['final_score'],  # Duplicate for compatibility
+                    "ml_relevance_score": ats_result['final_score'],
                     "skill_match_score": min(len(skills) / 10 * 100, 100),
                     "extracted_skills": skills,
                     "skill_count": len(skills),
                     "word_count": len(text.split()),
-                    "score_breakdown": {
-                        "contact_information": {"score": 100},
-                        "skills": {
-                            "score": min(len(skills) / 10 * 100, 100),
-                            "total_skills": len(skills)
-                        },
-                        "content_quality": {
-                            "score": ats_score,
-                            "word_count": len(text.split())
-                        }
-                    },
+                    "score_breakdown": ats_result['breakdown'],
                     "parsed_data": {
                         "primary_info": {
                             "name": "Extracted Name",
@@ -130,7 +230,13 @@ async def parse_resume(file: UploadFile = File(...)):
                         }
                     },
                     "skill_gaps": [],
-                    "recommendations": []
+                    "recommendations": [
+                        {
+                            "category": "Skills",
+                            "priority": "high",
+                            "message": f"You have {len(skills)} skills. Aim for 10+ for better ATS scores."
+                        }
+                    ] if len(skills) < 10 else []
                 }
             }
         
