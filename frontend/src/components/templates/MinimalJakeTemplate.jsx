@@ -4,13 +4,9 @@ const MinimalJakeTemplate = ({ data }) => {
   const { personalInfo, experience, education, skills, projects, certifications } = data;
 
   return (
-    <div style={{
+    <div className="max-w-4xl mx-auto bg-white p-12 shadow-sm" style={{
       fontFamily: "'Computer Modern', 'Latin Modern Roman', 'Times New Roman', serif",
-      backgroundColor: '#ffffff',
-      width: '8.5in',
       minHeight: '11in',
-      padding: '0.75in 0.75in',
-      boxSizing: 'border-box',
       fontSize: '11pt',
       lineHeight: '1.3',
       color: '#000000'

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AuthModal from '../components/auth/AuthModal';
 import Logo from '../components/common/Logo';
+import ThemeToggle from '../components/common/ThemeToggle';
 
 export default function Landing() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -22,62 +23,66 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Logo size="lg" />
             
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
-              <a className="text-slate-700 hover:text-teal-600 font-medium transition-colors" href="#features">Features</a>
-              <a className="text-slate-700 hover:text-teal-600 font-medium transition-colors" href="#how-it-works">How It Works</a>
-              <button onClick={handleSignInClick} className="text-slate-700 hover:text-teal-600 font-semibold transition-colors">Sign In</button>
+              <a className="text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors" href="#features">Features</a>
+              <a className="text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 font-medium transition-colors" href="#how-it-works">How It Works</a>
+              <ThemeToggle />
+              <button onClick={handleSignInClick} className="text-slate-700 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400 font-semibold transition-colors">Sign In</button>
               <button onClick={handleSignUpClick} className="px-7 py-3 rounded-full bg-gradient-to-r from-[#13A8A8] to-[#18B3B3] text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
                 Get Started Free
               </button>
             </nav>
 
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? (
-                <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
+            {/* Mobile Menu Button & Theme Toggle */}
+            <div className="md:hidden flex items-center gap-2">
+              <ThemeToggle />
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? (
+                  <svg className="w-6 h-6 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6 text-slate-700 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-slate-200 pt-4">
+            <div className="md:hidden mt-4 pb-4 border-t border-slate-200 dark:border-slate-700 pt-4">
               <div className="flex flex-col space-y-3">
                 <a 
                   href="#features" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium"
+                  className="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-medium"
                 >
                   Features
                 </a>
                 <a 
                   href="#how-it-works" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium"
+                  className="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-medium"
                 >
                   How It Works
                 </a>
                 <button 
                   onClick={handleSignInClick}
-                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-semibold text-left"
+                  className="px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-semibold text-left"
                 >
                   Sign In
                 </button>
@@ -97,11 +102,11 @@ export default function Landing() {
       <section className="max-w-7xl mx-auto px-6 py-20 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="space-y-8">
-            <div className="inline-block px-4 py-2 bg-teal-50 rounded-full text-teal-700 font-semibold text-sm">
+            <div className="inline-block px-4 py-2 bg-teal-50 dark:bg-teal-900/30 rounded-full text-teal-700 dark:text-teal-300 font-semibold text-sm">
               ✨ AI-Powered Resume Intelligence
             </div>
             
-            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold text-slate-900 leading-tight">
+            <h1 className="text-5xl lg:text-6xl xl:text-7xl font-extrabold text-slate-900 dark:text-white leading-tight">
               Land Your Dream Job with{' '}
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#13A8A8] to-[#18B3B3]">
                 AI-Optimized
@@ -109,7 +114,7 @@ export default function Landing() {
               Resumes
             </h1>
             
-            <p className="text-xl lg:text-2xl text-slate-600 leading-relaxed">
+            <p className="text-xl lg:text-2xl text-slate-600 dark:text-slate-300 leading-relaxed">
               Beat Applicant Tracking Systems, discover skill gaps, and get personalized AI recommendations to triple your interview callbacks.
             </p>
 
@@ -120,7 +125,7 @@ export default function Landing() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </button>
-              <button onClick={handleSignInClick} className="px-8 py-4 rounded-full border-2 border-teal-600 text-teal-700 font-semibold bg-white hover:bg-teal-50 transition-all">
+              <button onClick={handleSignInClick} className="px-8 py-4 rounded-full border-2 border-teal-600 dark:border-teal-400 text-teal-700 dark:text-teal-300 font-semibold bg-white dark:bg-slate-800 hover:bg-teal-50 dark:hover:bg-slate-700 transition-all">
                 See How It Works
               </button>
             </div>
@@ -128,21 +133,21 @@ export default function Landing() {
             <div className="grid grid-cols-2 gap-6 pt-4">
               {['90%+ ATS Pass Rate', 'AI-Powered Analysis', 'Instant Feedback', '100% Private & Secure'].map((feature, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-5 h-5 text-teal-600 dark:text-teal-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <span className="text-slate-700 font-medium">{feature}</span>
+                  <span className="text-slate-700 dark:text-slate-300 font-medium">{feature}</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="relative">
-            <div className="absolute -top-4 -left-4 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-            <div className="absolute -bottom-8 -right-4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style={{animationDelay: '2s'}}></div>
-            <div className="relative rounded-3xl shadow-2xl border border-slate-200 overflow-hidden bg-white p-2">
+            <div className="absolute -top-4 -left-4 w-72 h-72 bg-teal-200 dark:bg-teal-900/30 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-30 animate-pulse"></div>
+            <div className="absolute -bottom-8 -right-4 w-72 h-72 bg-blue-200 dark:bg-blue-900/30 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-30 animate-pulse" style={{animationDelay: '2s'}}></div>
+            <div className="relative rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-800 p-2">
               <img src="/assets/why/hero_pic1.png" alt="AI Resume Analysis Dashboard" className="w-full h-auto rounded-2xl" />
             </div>
           </div>
@@ -171,10 +176,10 @@ export default function Landing() {
       {/* Features Section */}
       <section id="features" className="max-w-7xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6">
             Why Choose <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#13A8A8] to-[#18B3B3]">CareerPath360</span>
           </h2>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
             Our AI-powered platform gives you the competitive edge with instant ATS scoring, personalized recommendations, and industry-leading resume optimization tools.
           </p>
         </div>
@@ -203,12 +208,12 @@ export default function Landing() {
               badgeColor: 'purple'
             }
           ].map((feature, i) => (
-            <div key={i} className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100 hover:border-teal-200 transform hover:-translate-y-2">
-              <div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-${feature.badgeColor}-100 to-${feature.badgeColor}-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
+            <div key={i} className="group bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-100 dark:border-slate-700 hover:border-teal-200 dark:hover:border-teal-600 transform hover:-translate-y-2">
+              <div className={`w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-${feature.badgeColor}-100 to-${feature.badgeColor}-50 dark:from-${feature.badgeColor}-900/50 dark:to-${feature.badgeColor}-800/30 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
                 <img src={feature.icon} alt={feature.title} className="w-14 h-14" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-4 text-center">{feature.title}</h3>
-              <p className="text-slate-600 text-center leading-relaxed mb-6">{feature.desc}</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 text-center">{feature.title}</h3>
+              <p className="text-slate-600 dark:text-slate-300 text-center leading-relaxed mb-6">{feature.desc}</p>
               <div className="text-center">
                 <span className={`inline-block px-4 py-2 bg-${feature.badgeColor}-50 text-${feature.badgeColor}-700 rounded-full text-sm font-semibold`}>
                   {feature.badge}
@@ -220,10 +225,10 @@ export default function Landing() {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-24 bg-gradient-to-br from-slate-50 to-teal-50 rounded-3xl my-12">
+      <section id="how-it-works" className="max-w-7xl mx-auto px-6 py-24 bg-gradient-to-br from-slate-50 to-teal-50 dark:from-slate-800 dark:to-slate-900 rounded-3xl my-12">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">How It Works</h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">Simple, fast, and effective. Get your optimized resume in 3 easy steps.</p>
+          <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-6">How It Works</h2>
+          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">Simple, fast, and effective. Get your optimized resume in 3 easy steps.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-12">
@@ -236,8 +241,8 @@ export default function Landing() {
               <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-r from-[#13A8A8] to-[#18B3B3] rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-xl">
                 {item.step}
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-              <p className="text-slate-600 leading-relaxed">{item.desc}</p>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{item.title}</h3>
+              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
@@ -261,14 +266,14 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 py-16">
+      <footer className="bg-slate-900 dark:bg-slate-950 text-slate-300 py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-2">
               <div className="mb-6">
                 <Logo size="lg" />
               </div>
-              <p className="text-slate-400 leading-relaxed max-w-md">
+              <p className="text-slate-400 dark:text-slate-500 leading-relaxed max-w-md">
                 AI-powered resume optimization platform helping job seekers land their dream careers faster with intelligent ATS scoring and personalized recommendations.
               </p>
             </div>
@@ -277,7 +282,7 @@ export default function Landing() {
               <h4 className="text-white font-bold mb-4">Product</h4>
               <ul className="space-y-3">
                 {['Features', 'Solutions', 'Pricing', 'Templates'].map((item, i) => (
-                  <li key={i}><a href={`#${item.toLowerCase()}`} className="hover:text-teal-400 transition-colors">{item}</a></li>
+                  <li key={i}><a href={`#${item.toLowerCase()}`} className="hover:text-teal-400 dark:hover:text-teal-300 transition-colors">{item}</a></li>
                 ))}
               </ul>
             </div>
@@ -286,17 +291,17 @@ export default function Landing() {
               <h4 className="text-white font-bold mb-4">Company</h4>
               <ul className="space-y-3">
                 {['About Us', 'Privacy Policy', 'Terms of Service', 'Contact'].map((item, i) => (
-                  <li key={i}><a href="#" className="hover:text-teal-400 transition-colors">{item}</a></li>
+                  <li key={i}><a href="#" className="hover:text-teal-400 dark:hover:text-teal-300 transition-colors">{item}</a></li>
                 ))}
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-500 text-sm">© {new Date().getFullYear()} CareerPath360. All rights reserved.</p>
+          <div className="border-t border-slate-800 dark:border-slate-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-500 dark:text-slate-600 text-sm">© {new Date().getFullYear()} CareerPath360. All rights reserved.</p>
             <div className="flex gap-6">
               {['M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z', 'M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z', 'M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z'].map((path, i) => (
-                <a key={i} href="#" className="text-slate-400 hover:text-teal-400 transition-colors">
+                <a key={i} href="#" className="text-slate-400 dark:text-slate-600 hover:text-teal-400 dark:hover:text-teal-300 transition-colors">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                     <path d={path} />
                     {i === 1 && <circle cx="4" cy="4" r="2" />}

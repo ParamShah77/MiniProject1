@@ -21,29 +21,32 @@ export const exportResumeToPDF = (resumeName = 'Resume', elementId = 'resume-pre
       const unwantedElements = clone.querySelectorAll('button, .no-print, .hover\\:shadow-lg');
       unwantedElements.forEach(el => el.remove());
 
-      // PDF options - optimized for professional resume output
+      // PDF options - optimized for professional resume output with enhanced quality
       const options = {
-        margin: 0,
+        margin: [0.3, 0.3, 0.3, 0.3],  // Smaller margins for better content fit
         filename: `${resumeName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
         image: { 
           type: 'jpeg', 
-          quality: 0.98 
+          quality: 1.0                 // Maximum quality
         },
         html2canvas: { 
-          scale: 2,                    // High quality
+          scale: 3,                    // Higher resolution (2 → 3)
           useCORS: true,               // Load external images
           letterRendering: true,       // Better text rendering
           logging: false,              // Disable console logs
-          backgroundColor: '#ffffff'   // White background
+          backgroundColor: '#ffffff',  // White background
+          imageTimeout: 0,             // No timeout for images
+          removeContainer: true        // Clean rendering
         },
         jsPDF: { 
           unit: 'in', 
           format: 'letter',            // US Letter size (8.5" x 11")
           orientation: 'portrait',
-          compress: true               // Smaller file size
+          compress: false              // Preserve quality (no compression)
         },
         pagebreak: { 
-          mode: ['avoid-all', 'css', 'legacy']  // Smart page breaks
+          mode: ['avoid-all', 'css', 'legacy'],  // Smart page breaks
+          avoid: ['h1', 'h2', 'h3', 'tr', 'section']
         }
       };
 
@@ -60,6 +63,6 @@ export const exportResumeToPDF = (resumeName = 'Resume', elementId = 'resume-pre
           console.error('❌ PDF generation error:', err);
           reject(err);
         });
-    }, 300); // Wait 300ms for DOM to be fully ready
+    }, 500); // Wait 500ms for DOM to be fully ready (increased from 300ms)
   });
 };

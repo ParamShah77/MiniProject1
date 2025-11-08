@@ -4,6 +4,7 @@ import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import Button from '../components/common/Button';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const Templates = () => {
   const [templates, setTemplates] = useState([]);
@@ -35,7 +36,7 @@ const Templates = () => {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/templates');
+      const response = await axios.get(`${API_BASE_URL}/templates`);
       if (response.data.status === 'success') {
         setTemplates(response.data.data.templates);
       }

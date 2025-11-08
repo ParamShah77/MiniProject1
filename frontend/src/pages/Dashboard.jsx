@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { showSuccess, showError, showInfo } from '../utils/toast';
 import { StatCardSkeleton, ListItemSkeleton } from '../components/common/SkeletonLoader';
 import { API_BASE_URL } from '../utils/api';
+import EmailVerificationBanner from '../components/common/EmailVerificationBanner';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -22,7 +23,8 @@ const Dashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchDashboardStats();
+    // Force refresh on first load to avoid stale cache
+    fetchDashboardStats(true);
     fetchRecentAnalyses();
     const interval = setInterval(() => {
       fetchDashboardStats();
@@ -97,6 +99,34 @@ const Dashboard = () => {
     }
   };
 
+  // ✅ DELETE uploaded resume
+  const handleDeleteResume = async (resumeId, resumeName, event) => {
+    event.preventDefault(); // Prevent navigation
+    event.stopPropagation();
+    
+    if (!window.confirm(`Delete "${resumeName}"?\n\nThis will permanently delete this resume and all its analysis data.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.delete(
+        `${API_BASE_URL}/resume/${resumeId}`,
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      if (response.data.status === 'success') {
+        showSuccess('Resume deleted successfully!');
+        // Refresh both stats and recent analyses
+        await fetchDashboardStats(true);
+        await fetchRecentAnalyses();
+      }
+    } catch (error) {
+      console.error('❌ Delete error:', error);
+      showError('Failed to delete resume. Please try again.');
+    }
+  };
+
   // ✅ Fetch recent UPLOADED resumes (analyzed resumes)
   const fetchRecentAnalyses = async () => {
     try {
@@ -164,6 +194,9 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Email Verification Banner */}
+        <EmailVerificationBanner />
+        
         {/* Header */}
         <div className="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
           <div>
@@ -302,15 +335,28 @@ const Dashboard = () => {
               </div>
             </a>
 
-            <a href="/analysis" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+            <a href="/job-matching" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
               <div className="text-center">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+                    <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
                   </svg>
                 </div>
-                <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">View Analysis</h3>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Review past analyses and track progress</p>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Job Matching</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Analyze job postings and match your skills</p>
+              </div>
+            </a>
+
+            <a href="/analytics" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+              <div className="text-center">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                  </svg>
+                </div>
+                <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Analytics</h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Track your career progress with insights</p>
               </div>
             </a>
 
@@ -382,12 +428,14 @@ const Dashboard = () => {
                 {recentAnalyses.map((analysis, index) => {
                   const score = analysis.atsScore || analysis.parsedData?.final_ats_score || 0;
                   return (
-                    <a
-                      key={analysis._id || `analysis-${index}`} 
-                      href="/analysis"
-                      className="block border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                    <div
+                      key={analysis._id || `analysis-${index}`}
+                      className="group relative border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors"
                     >
-                      <div className="flex items-center justify-between gap-4">
+                      <a
+                        href="/analysis"
+                        className="flex items-center justify-between gap-4"
+                      >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
                             <span className="text-base sm:text-lg">📄</span>
@@ -407,8 +455,19 @@ const Dashboard = () => {
                           </div>
                           <p className="text-xs text-gray-600 dark:text-slate-400 mt-1 whitespace-nowrap">ATS Score</p>
                         </div>
-                      </div>
-                    </a>
+                      </a>
+                      
+                      {/* Delete Button - appears on hover */}
+                      <button
+                        onClick={(e) => handleDeleteResume(analysis._id, analysis.originalName || analysis.fileName, e)}
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400"
+                        title="Delete Resume"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   );
                 })}
               </div>

@@ -57,7 +57,14 @@ const ResumeBuilder = () => {
     { id: 'developer', name: 'Developer' },
     { id: 'business-analyst', name: 'Business Analyst' },
     { id: 'designer', name: 'Designer' },
-    { id: 'senior-professional', name: 'Senior Professional' }
+    { id: 'senior-professional', name: 'Senior Professional' },
+    { id: 'marketing', name: 'Marketing' },
+    { id: 'hr', name: 'HR/People Operations' },
+    { id: 'sales', name: 'Sales' },
+    { id: 'teaching', name: 'Teaching/Education' },
+    { id: 'finance', name: 'Finance/Accounting' },
+    { id: 'operations', name: 'Operations/Logistics' },
+    { id: 'healthcare', name: 'Healthcare/Nursing' }
   ];
 
   // Resume Data State
@@ -621,39 +628,41 @@ const ResumeBuilder = () => {
       const fileName = resumeName || `${resumeData.personalInfo.fullName}_Resume`;
 
       // Wait a moment for any dynamic content to render
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const options = {
-        margin: [0.5, 0.5, 0.5, 0.5],  // Add proper margins
+        margin: [0.3, 0.3, 0.3, 0.3],  // Smaller margins for better content fit
         filename: `${fileName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
         image: { 
           type: 'jpeg', 
-          quality: 0.98 
+          quality: 1.0  // Maximum quality
         },
         html2canvas: { 
-          scale: 2,
+          scale: 3,  // Higher scale for better resolution
           useCORS: true,
           letterRendering: true,
           logging: false,
           backgroundColor: '#ffffff',
-          width: element.scrollWidth,  // Use scroll width to capture full content
+          width: element.scrollWidth,
           height: element.scrollHeight,
           windowWidth: element.scrollWidth,
-          windowHeight: element.scrollHeight
+          windowHeight: element.scrollHeight,
+          imageTimeout: 0,
+          removeContainer: true
         },
         jsPDF: { 
           unit: 'in', 
           format: 'letter',
           orientation: 'portrait',
-          compress: true
+          compress: false  // Don't compress to preserve quality
         },
         pagebreak: { 
           mode: ['avoid-all', 'css', 'legacy'],
-          avoid: ['h1', 'h2', 'h3']
+          avoid: ['h1', 'h2', 'h3', 'tr', 'section']
         }
       };
 
-      console.log('📄 Exporting PDF...');
+      console.log('📄 Exporting PDF with enhanced quality...');
       console.log('📄 Element dimensions:', element.scrollWidth, 'x', element.scrollHeight);
 
       await html2pdf()

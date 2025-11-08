@@ -115,6 +115,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
+    // Redirect to landing page
+    window.location.href = '/';
   };
 
   return (

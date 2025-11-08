@@ -7,6 +7,7 @@ import Badge from '../components/common/Badge';
 import { getTemplateComponent } from '../components/templates';
 import html2pdf from 'html2pdf.js';
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/api';
 
 const ResumeHistory = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const ResumeHistory = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        'http://localhost:5000/api/resume/built/all',
+        `${API_BASE_URL}/resume/built/all`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
@@ -61,7 +62,7 @@ const ResumeHistory = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.delete(
-        `http://localhost:5000/api/resume/built/${resumeId}`,
+        `${API_BASE_URL}/resume/built/${resumeId}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
@@ -89,7 +90,7 @@ const ResumeHistory = () => {
       
       // Fetch the full resume data
       const response = await axios.get(
-        `http://localhost:5000/api/resume/built/${resumeId}`,
+        `${API_BASE_URL}/resume/built/${resumeId}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
@@ -103,10 +104,10 @@ const ResumeHistory = () => {
           name: resumeData.resumeName
         });
         
-        // Wait for DOM to update
+        // Wait for DOM to update with enhanced rendering time
         setTimeout(() => {
           downloadResumeAsPDF(resumeData.resumeName);
-        }, 500);
+        }, 700); // Increased from 500ms for better rendering
       }
     } catch (error) {
       console.error('Download error:', error);
@@ -130,19 +131,34 @@ const ResumeHistory = () => {
     console.log('🎨 Generating PDF from element...');
 
     const options = {
-      margin: 0,
+      margin: [0.3, 0.3, 0.3, 0.3],  // Smaller margins for better content fit
       filename: `${resumeName.replace(/[^a-z0-9]/gi, '_')}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { 
+        type: 'jpeg', 
+        quality: 1.0  // Maximum quality
+      },
       html2canvas: { 
-        scale: 2,
+        scale: 3,  // Higher resolution (2 → 3)
         useCORS: true,
         letterRendering: true,
-        logging: false
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: element.scrollWidth,
+        height: element.scrollHeight,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+        imageTimeout: 0,
+        removeContainer: true
       },
       jsPDF: { 
         unit: 'in', 
         format: 'letter', 
-        orientation: 'portrait'
+        orientation: 'portrait',
+        compress: false  // Preserve quality (no compression)
+      },
+      pagebreak: {
+        mode: ['avoid-all', 'css', 'legacy'],
+        avoid: ['h1', 'h2', 'h3', 'tr', 'section']
       }
     };
 

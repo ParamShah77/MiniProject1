@@ -1,17 +1,13 @@
 import React from 'react';
 
-const MinimalJakeTemplate = ({ data }) => {
+const TechyModernTemplate = ({ data }) => {
   const { personalInfo, experience, education, skills, projects, certifications } = data;
 
   return (
-    <div 
+    <div className="max-w-4xl mx-auto bg-white p-12 shadow-sm"
       style={{
         fontFamily: 'Inter, system-ui, sans-serif',
-        backgroundColor: '#ffffff',
-        width: '8.5in',
         minHeight: '11in',
-        padding: '0.5in',
-        boxSizing: 'border-box',
         fontSize: '10pt',
         lineHeight: '1.5'
       }}
@@ -557,4 +553,4 @@ const MinimalJakeTemplate = ({ data }) => {
   );
 };
 
-export default MinimalJakeTemplate;
+export default TechyModernTemplate;

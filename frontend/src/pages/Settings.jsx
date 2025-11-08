@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
+import { API_BASE_URL } from '../utils/api';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
   
   const [profile, setProfile] = useState({
     name: '',
@@ -28,12 +35,14 @@ const Settings = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        'http://localhost:5000/api/profile',
+        `${API_BASE_URL}/auth/profile`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
       if (response.data.status === 'success') {
-        setProfile(response.data.data);
+        // Extract user data from response
+        const userData = response.data.data.user || response.data.data;
+        setProfile(userData);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -47,16 +56,18 @@ const Settings = () => {
       const token = localStorage.getItem('token');
       
       const response = await axios.put(
-        'http://localhost:5000/api/profile/update',
+        `${API_BASE_URL}/auth/profile`,
         profile,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
       if (response.data.status === 'success') {
         toast.success('✅ Profile updated successfully!');
+        // Refresh profile data
+        fetchProfile();
       }
     } catch (error) {
-      toast.error('❌ Failed to update profile: ' + error.message);
+      toast.error('❌ Failed to update profile: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -73,12 +84,17 @@ const Settings = () => {
       return;
     }
 
+    if (passwords.newPassword.length < 6) {
+      toast.error('New password must be at least 6 characters');
+      return;
+    }
+
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      const response = await axios.post(
-        'http://localhost:5000/api/profile/change-password',
+      const response = await axios.put(
+        `${API_BASE_URL}/auth/change-password`,
         {
           currentPassword: passwords.currentPassword,
           newPassword: passwords.newPassword
@@ -98,32 +114,7 @@ const Settings = () => {
   };
 
   const handleDeleteAccount = async () => {
-    const password = prompt('⚠️ Enter your password to confirm account deletion:');
-    
-    if (!password) return;
-
-    if (!confirm('Are you ABSOLUTELY sure? This action cannot be undone!')) return;
-
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      
-      await axios.delete(
-        'http://localhost:5000/api/profile/delete',
-        {
-          headers: { 'Authorization': `Bearer ${token}` },
-          data: { password }
-        }
-      );
-
-      toast.success('Account deleted. Goodbye!');
-      localStorage.clear();
-      window.location.href = '/login';
-    } catch (error) {
-      toast.error('❌ ' + (error.response?.data?.message || 'Failed to delete account'));
-    } finally {
-      setLoading(false);
-    }
+    toast.error('Account deletion is not available yet. Please contact support.');
   };
 
   return (
@@ -255,42 +246,63 @@ const Settings = () => {
               
               <div className="space-y-4">
                 {/* Current Password */}
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
                     Current Password
                   </label>
                   <input
-                    type="password"
+                    type={showPasswords.current ? 'text' : 'password'}
                     value={passwords.currentPassword}
                     onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
+                    className="absolute right-3 top-[38px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPasswords.current ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
 
                 {/* New Password */}
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
                     New Password
                   </label>
                   <input
-                    type="password"
+                    type={showPasswords.new ? 'text' : 'password'}
                     value={passwords.newPassword}
                     onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
+                    className="absolute right-3 top-[38px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPasswords.new ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
 
                 {/* Confirm Password */}
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-white">
                     Confirm New Password
                   </label>
                   <input
-                    type="password"
+                    type={showPasswords.confirm ? 'text' : 'password'}
                     value={passwords.confirmPassword}
                     onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                    className="absolute right-3 top-[38px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPasswords.confirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
 
                 {/* Change Button */}

@@ -4,6 +4,7 @@ import axios from 'axios';
 import Card from '../components/common/Card';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
+import { API_BASE_URL } from '../utils/api';
 
 const ProfileSettings = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -35,7 +36,7 @@ const ProfileSettings = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        'http://localhost:5000/api/profile',
+        `${API_BASE_URL}/profile`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 
@@ -59,7 +60,7 @@ const ProfileSettings = () => {
       const token = localStorage.getItem('token');
       
       const response = await axios.put(
-        'http://localhost:5000/api/profile',
+        `${API_BASE_URL}/profile`,
         profile,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -102,7 +103,7 @@ const ProfileSettings = () => {
       const token = localStorage.getItem('token');
       
       const response = await axios.put(
-        'http://localhost:5000/api/profile/change-password',
+        `${API_BASE_URL}/profile/change-password`,
         {
           currentPassword: passwords.currentPassword,
           newPassword: passwords.newPassword,
@@ -136,7 +137,7 @@ const ProfileSettings = () => {
       const token = localStorage.getItem('token');
       
       await axios.delete(
-        'http://localhost:5000/api/profile',
+        `${API_BASE_URL}/profile`,
         {
           headers: { 'Authorization': `Bearer ${token}` },
           data: { password }
