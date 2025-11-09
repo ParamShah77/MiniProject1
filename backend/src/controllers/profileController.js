@@ -1,6 +1,10 @@
 const User = require('../models/User');
 const Resume = require('../models/Resume');
+const JobAnalysis = require('../models/JobAnalysis');
+const Notification = require('../models/Notification');
 const bcrypt = require('bcryptjs');
+const path = require('path');
+const fs = require('fs').promises;
 
 // ====================================
 // 👤 USER PROFILE
@@ -276,11 +280,37 @@ exports.deleteAccount = async (req, res) => {
       });
     }
 
-    // Delete all user's resumes
-    const deletedResumes = await Resume.deleteMany({ userId });
-    console.log('🗑️ Deleted', deletedResumes.deletedCount, 'resumes');
+    console.log('🗑️ Starting account deletion process...');
 
-    // Delete user account
+    // 1. Delete all user's resumes AND physical files
+    const userResumes = await Resume.find({ userId });
+    let filesDeleted = 0;
+    
+    for (const resume of userResumes) {
+      if (!resume.isBuiltResume && resume.fileName) {
+        const filePath = path.join(__dirname, '../../uploads', resume.fileName);
+        try {
+          await fs.unlink(filePath);
+          filesDeleted++;
+          console.log('🗑️ Deleted file:', resume.fileName);
+        } catch (err) {
+          console.error('⚠️ Error deleting file:', err.message);
+        }
+      }
+    }
+
+    const deletedResumes = await Resume.deleteMany({ userId });
+    console.log(`✅ Deleted ${deletedResumes.deletedCount} resumes and ${filesDeleted} files`);
+
+    // 2. Delete all job analyses
+    const deletedJobAnalyses = await JobAnalysis.deleteMany({ userId });
+    console.log(`✅ Deleted ${deletedJobAnalyses.deletedCount} job analyses`);
+
+    // 3. Delete all notifications
+    const deletedNotifications = await Notification.deleteMany({ userId });
+    console.log(`✅ Deleted ${deletedNotifications.deletedCount} notifications`);
+
+    // 4. Delete user account
     await User.findByIdAndDelete(userId);
 
     console.log('✅ Account deleted successfully:', user.email);
@@ -289,7 +319,10 @@ exports.deleteAccount = async (req, res) => {
       status: 'success',
       message: 'Account and all associated data deleted successfully',
       data: {
-        resumesDeleted: deletedResumes.deletedCount
+        resumesDeleted: deletedResumes.deletedCount,
+        filesDeleted,
+        jobAnalysesDeleted: deletedJobAnalyses.deletedCount,
+        notificationsDeleted: deletedNotifications.deletedCount
       }
     });
   } catch (error) {
