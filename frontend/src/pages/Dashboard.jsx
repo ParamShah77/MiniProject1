@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { showSuccess, showError, showInfo } from '../utils/toast';
@@ -311,7 +312,7 @@ const Dashboard = () => {
           <p className="text-gray-700 dark:text-slate-300 mb-6 sm:mb-8">Power up your job search in one click</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            <a href="/upload" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+            <Link to="/upload" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
               <div className="text-center">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -321,9 +322,9 @@ const Dashboard = () => {
                 <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Analyze Resume</h3>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Upload for instant AI-powered ATS scoring</p>
               </div>
-            </a>
+            </Link>
 
-            <a href="/resume-builder" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+            <Link to="/resume-builder" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
               <div className="text-center">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -333,9 +334,9 @@ const Dashboard = () => {
                 <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Build Resume</h3>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Create professional ATS-optimized resumes</p>
               </div>
-            </a>
+            </Link>
 
-            <a href="/job-matching" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+            <Link to="/job-matching" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
               <div className="text-center">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -346,9 +347,9 @@ const Dashboard = () => {
                 <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Job Matching</h3>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Analyze job postings and match your skills</p>
               </div>
-            </a>
+            </Link>
 
-            <a href="/analytics" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+            <Link to="/analytics" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
               <div className="text-center">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -358,9 +359,9 @@ const Dashboard = () => {
                 <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Analytics</h3>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Track your career progress with insights</p>
               </div>
-            </a>
+            </Link>
 
-            <a href="/resume-history" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
+            <Link to="/resume-history" className="group bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:shadow-2xl p-6 sm:p-8 transition-all transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
               <div className="text-center">
                 <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -370,7 +371,7 @@ const Dashboard = () => {
                 <h3 className="font-bold text-base sm:text-lg text-gray-900 dark:text-white mb-2">Resume History</h3>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-400 leading-relaxed">Access all your created and analyzed resumes</p>
               </div>
-            </a>
+            </Link>
           </div>
         </div>
 
